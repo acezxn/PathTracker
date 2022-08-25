@@ -51,6 +51,7 @@ def place_point(img, x, y, shift, add):
 
 
 while True:
+    
     # INITIALIZE VALUES
     waypoints = []
     start_pos = (0,0)
@@ -72,14 +73,16 @@ while True:
     cv2.setMouseCallback("Field", click)
     key = cv2.waitKey()
     
-    if key != 13: # enter key
+    if key == 27: # esc key
+        sys.exit(0)
+    elif key != 13: # enter key
         continue
     
     # MAKE SURE AT LEAST 4 POINTS SELECTED
     if len(waypoints) < 4:
         sys.exit(0)
     
-    # CONVERT PIXELS TO INCHES, CALCULATE WAYPOINT DISTANCE, INJECT MID-WAYPOINTS
+    # Creates cutmull rom spline curve
     total_waypoints = [start_pos]
     for t in np.arange(0, len(waypoints)-3, 0.05):
         p1 = waypoints[int(t)]

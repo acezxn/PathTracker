@@ -1,4 +1,4 @@
-# VEX spin up pure pursuit simulator
+# VEX spin up path tracking simulator
 
 modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be compatible with VEX spin up competition.
 
@@ -10,6 +10,7 @@ modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be co
 - Used Catmull rom spline curve instead of smoothing
 - Used to-scale units (length is in cm)
 - Allowed overlapped paths
+- Added ramsete controller
 
 ### Path generator
 
@@ -19,6 +20,6 @@ modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be co
 
 ### Robot simulator
 
-- Simultes pure pursuit algorithm
+- Simultes pure pursuit and ramsete algorithm
 - Customized lookahead search algorithm to allow overlapped paths
 - Record the scene and export to png and gif

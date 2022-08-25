@@ -32,6 +32,18 @@ def absToLocal(coord):
     newY = xDist*math.sin(angle) + yDist*math.cos(angle);
 
     return (newX, newY)
+
+def formatAngle(a):
+    sign = 1
+    if a < 0:
+        sign = -1
+    positive_a = abs(a)
+    mod = positive_a % (2*math.pi)
+    if (mod < math.pi):
+        return sign*mod
+    else:
+        return sign*(mod-2*math.pi)
+    
 def closest():
     global path, pos
 
@@ -175,9 +187,10 @@ width = float(config["ROBOT"]["TRACKWIDTH"]) / scaler
 length = float(config["ROBOT"]["LENGTH"]) / scaler
 
 exportEnabled = int(config["EXPORT"]["ENABLED"])
+algorithm = config["CONTROL"]["ALGORITHM"]
 
 pos = (0,0)
-angle = math.atan2(path[1][0], path[1][1])
+angle = math.atan2(path[2][0], path[2][1])
 t = 0
 t_i = 0
 wheels = [0,0]
@@ -196,31 +209,63 @@ cv2.setMouseCallback('img', click)
 itt = 0
 while True:
     while closest() != len(path)-1:
-
+        
         look = lookahead()
         locallook = absToLocal(look)
         close = closest()
-        curv = (2*locallook[0]) / ((float(config["PATH"]["LOOKAHEAD"])/scaler) **2)
-        vel = 0
-        if (curv == 0 or abs(1/curv) > 1000):
-            vel = 600
-        else:
-            vel = min(abs(600 / (curv*180)), 600)
-        
-        last_wheels = wheels
-        wheels = turn(curv, vel, width)    
+            
+        if algorithm == "RAMSETE":
+            e_x = locallook[0]
+            e_y = locallook[1]
+            e_theta = math.atan2(locallook[0], locallook[1])
+            
+            
+            desired_linearVelocity = min(max(0.07*abs(e_y), 5), 500)
+            
+            desired_angularVelocity = min(max(0.07*abs(e_theta), 0.01), 2*math.pi)
+                    
+            
+            k = 2 * 0.4 * math.sqrt(desired_angularVelocity * desired_angularVelocity + 1 * desired_linearVelocity * desired_linearVelocity)
+            targetLinearVelocity = desired_linearVelocity * math.cos(e_theta) + k * e_y
+            
+            
+            targetAngularVelocity = 0
+            if (e_theta != 0):
+                targetAngularVelocity = desired_angularVelocity + k * e_theta + (1*desired_linearVelocity*math.sin(e_theta)* e_x) / e_theta
+            
+            last_wheels = wheels
+            wheels = [targetLinearVelocity + targetAngularVelocity, targetLinearVelocity - targetAngularVelocity]
+            
+            for i, w in enumerate(wheels):
+                wheels[i] = last_wheels[i] + min(float(config["ROBOT"]["MAX_VEL_CHANGE"])*dt, max(-float(config["ROBOT"]["MAX_VEL_CHANGE"])*dt, w-last_wheels[i]))
 
-        for i, w in enumerate(wheels):
-            wheels[i] = last_wheels[i] + min(float(config["ROBOT"]["MAX_VEL_CHANGE"])*dt, max(-float(config["ROBOT"]["MAX_VEL_CHANGE"])*dt, w-last_wheels[i]))
+            pos = (pos[0] + (wheels[0]+wheels[1])/2*dt * math.sin(angle), pos[1] + (wheels[0]+wheels[1])/2*dt * math.cos(angle))
+            angle += math.atan((wheels[0]-wheels[1])/width*dt)
+            # print(str(wheels) + ", " + str(angle))
 
-        pos = (pos[0] + (wheels[0]+wheels[1])/2*dt * math.sin(angle), pos[1] + (wheels[0]+wheels[1])/2*dt * math.cos(angle))
-        angle += math.atan((wheels[0]-wheels[1])/width*dt)
-        # print(str(wheels) + ", " + str(angle))
+            draw_robot(img)
+        elif algorithm == "PURE_PURSUIT":
+            curv = (2*locallook[0]) / ((float(config["PATH"]["LOOKAHEAD"])/scaler) **2)
+            vel = 0
+            if (curv == 0 or abs(1/curv) > 1000):
+                vel = 600
+            else:
+                vel = min(abs(600 / (curv*180)), 600)
+            
+            last_wheels = wheels
+            wheels = turn(curv, vel, width)    
 
-        st = time.time()
-        draw_robot(img)
-        et = time.time()
-        # print(et-st)
+            for i, w in enumerate(wheels):
+                wheels[i] = last_wheels[i] + min(float(config["ROBOT"]["MAX_VEL_CHANGE"])*dt, max(-float(config["ROBOT"]["MAX_VEL_CHANGE"])*dt, w-last_wheels[i]))
+
+            pos = (pos[0] + (wheels[0]+wheels[1])/2*dt * math.sin(angle), pos[1] + (wheels[0]+wheels[1])/2*dt * math.cos(angle))
+            angle += math.atan((wheels[0]-wheels[1])/width*dt)
+            # print(str(wheels) + ", " + str(angle))
+
+            st = time.time()
+            draw_robot(img)
+            et = time.time()
+            # print(et-st)
         itt += 1
         
     if exportEnabled:
