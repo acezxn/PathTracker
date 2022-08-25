@@ -71,15 +71,13 @@ while True:
     cv2.imshow("Field", img)
     cv2.setMouseCallback("Field", click)
     key = cv2.waitKey()
-    if key == 13: # enter key
-        break
     
-
-# MAKE SURE AT LEAST 4 POINTS SELECTED
-if len(waypoints) < 4:
-    sys.exit(0)
-
-while True:
+    if key != 13: # enter key
+        continue
+    
+    # MAKE SURE AT LEAST 4 POINTS SELECTED
+    if len(waypoints) < 4:
+        sys.exit(0)
     
     # CONVERT PIXELS TO INCHES, CALCULATE WAYPOINT DISTANCE, INJECT MID-WAYPOINTS
     total_waypoints = [start_pos]

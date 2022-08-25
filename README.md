@@ -15,6 +15,7 @@ modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be co
 
 - Because it used Catmull rom spline curve, the first and the last points would not count in the generated path. (You can set the first point to be the same location as the second point, and the last point to be the same location as its previous point.) 
 - Press enter key to confirm path, and other keys to re-plan the path
+- Most functions are largely identicall to [arimb/PurePursuit](https://github.com/arimb/PurePursuit)
 
 ### Robot simulator
 
