@@ -135,15 +135,16 @@ def draw_robot(img):
              (0,0,255), 2)
 
     cv2.imshow("img", tmp)
-    if itt%6==0:
-        cv2.imwrite("images/" + str(itt) + ".png", tmp)
-        imageNames.append("images/" + str(itt) + ".png")
+    if exportEnabled:
+        if itt%6==0:
+            cv2.imwrite("images/" + str(itt) + ".png", tmp)
+            imageNames.append("images/" + str(itt) + ".png")
     cv2.waitKey(5)
 
 def click(event, x, y, flags, param):
     global pos, angle, t, t_i, wheels
     if event == cv2.EVENT_LBUTTONDOWN:
-        pos = ((x-start_pos[0]),(start_pos[0]-y))
+        pos = ((x-start_pos[0]),(start_pos[1]-y))
         angle = 0
         t = 0
         t_i = 0
@@ -172,6 +173,8 @@ with open(config["PATH"]["FILE_LOCATION"]) as file:
 
 width = float(config["ROBOT"]["TRACKWIDTH"]) / scaler
 length = float(config["ROBOT"]["LENGTH"]) / scaler
+
+exportEnabled = int(config["EXPORT"]["ENABLED"])
 
 pos = (0,0)
 angle = math.atan2(path[1][0], path[1][1])
@@ -220,11 +223,12 @@ while True:
         # print(et-st)
         itt += 1
         
-    with imageio.get_writer('images/movie.gif', mode='I') as writer:
-        print("Writing gif to images/movie.gif")
-        for name in tqdm(imageNames):
-            writer.append_data(imageio.imread(name))
-        print("Done!")
+    if exportEnabled:
+        with imageio.get_writer('images/movie.gif', mode='I') as writer:
+            print("Writing gif to images/movie.gif")
+            for name in tqdm(imageNames):
+                writer.append_data(imageio.imread(name))
+            print("Done!")
         
     key = cv2.waitKey()
     if (key == ord('r')):
