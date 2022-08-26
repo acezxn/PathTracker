@@ -200,6 +200,7 @@ dt=0.005
 field = cv2.imread(config["FIELD_IMAGE"]["FILE_LOCATION"])
 img = decrease_brightness(field, 100)
 start_pos = path[0]
+del path[0]
 
 
 draw_path(img)
@@ -220,9 +221,9 @@ while True:
             e_theta = math.atan2(locallook[0], locallook[1])
             
             
-            desired_linearVelocity = min(max(0.07*abs(e_y), 5), 500)
+            desired_linearVelocity = min(max(0.04*abs(e_y), 10), 500)
             
-            desired_angularVelocity = min(max(0.07*abs(e_theta), 0.01), 2*math.pi)
+            desired_angularVelocity = min(max(0.1*abs(e_theta), 0), 2*math.pi)
                     
             
             k = 2 * 0.4 * math.sqrt(desired_angularVelocity * desired_angularVelocity + 1 * desired_linearVelocity * desired_linearVelocity)

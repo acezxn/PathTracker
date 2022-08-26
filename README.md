@@ -2,7 +2,7 @@
 
 modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be compatible with VEX spin up competition.
 
-![image](https://github.com/acezxn/PathTracker/blob/main/images/movie.gif)
+![image](https://github.com/acezxn/PathTracker/blob/main/images/pure_pursuit.gif)
 
 ## Additions
 
