@@ -226,16 +226,30 @@ while True:
             desired_angularVelocity = min(max(0.1*abs(e_theta), 0), 2*math.pi)
                     
             
-            k = 2 * 0.4 * math.sqrt(desired_angularVelocity * desired_angularVelocity + 1 * desired_linearVelocity * desired_linearVelocity)
+            k = 2 * 0.4 * math.sqrt(desired_angularVelocity * desired_angularVelocity + 0.5 * desired_linearVelocity * desired_linearVelocity)
             targetLinearVelocity = desired_linearVelocity * math.cos(e_theta) + k * e_y
             
             
             targetAngularVelocity = 0
             if (e_theta != 0):
-                targetAngularVelocity = desired_angularVelocity + k * e_theta + (1*desired_linearVelocity*math.sin(e_theta)* e_x) / e_theta
+                targetAngularVelocity = desired_angularVelocity + k * e_theta + (0.5*desired_linearVelocity*math.sin(e_theta)* e_x) / e_theta
             
             last_wheels = wheels
-            wheels = [targetLinearVelocity + targetAngularVelocity, targetLinearVelocity - targetAngularVelocity]
+            
+            leftWeel = targetLinearVelocity + targetAngularVelocity
+            rightWheel = targetLinearVelocity - targetAngularVelocity
+            if leftWeel > float(config["VELOCITY"]["MAX_VEL"]):
+                leftWeel = float(config["VELOCITY"]["MAX_VEL"])
+            elif leftWeel < -float(config["VELOCITY"]["MAX_VEL"]):
+                leftWeel = -float(config["VELOCITY"]["MAX_VEL"])
+                
+            if rightWheel > float(config["VELOCITY"]["MAX_VEL"]):
+                rightWheel = float(config["VELOCITY"]["MAX_VEL"])
+            elif rightWheel < -float(config["VELOCITY"]["MAX_VEL"]):
+                rightWheel = -float(config["VELOCITY"]["MAX_VEL"])
+                
+            
+            wheels = [leftWeel, rightWheel]
             
             for i, w in enumerate(wheels):
                 wheels[i] = last_wheels[i] + min(float(config["ROBOT"]["MAX_VEL_CHANGE"])*dt, max(-float(config["ROBOT"]["MAX_VEL_CHANGE"])*dt, w-last_wheels[i]))
