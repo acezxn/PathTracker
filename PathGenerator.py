@@ -48,12 +48,14 @@ def place_point(img, x, y, shift, add):
         cv2.line(img, (x, y), (start_pos[0]+waypoints[-1][0], start_pos[1]-waypoints[-1][1]), (0, 255, 255), 2)
     if add:
         waypoints.append((x - start_pos[0], start_pos[1] - y))
+        control_points.append((x - start_pos[0], start_pos[1] - y))
 
 
 while True:
     
     # INITIALIZE VALUES
     waypoints = []
+    control_points = []
     start_pos = (0,0)
     mouse_down = False
 
@@ -103,10 +105,6 @@ while True:
         ty = 0.5 * (p1[1] * q1 + p2[1] * q2 + p3[1] * q3 + p4[1] * q4);
         
         total_waypoints.append((tx, ty))
-
-    with open(config["PATH"]["FILE_LOCATION"], "w+") as file:
-        for w in total_waypoints:
-            file.write(str(w[0]*scaler) + "," + str(-w[1]*scaler) + "\n")
             
     for i in range(2, len(total_waypoints)):
         cv2.circle(img, (int(start_pos[0]+total_waypoints[i][0]),
@@ -122,5 +120,13 @@ while True:
         
     cv2.imshow("Field", img)
     key = cv2.waitKey()
-    if key == 13: # enter key
+    if key == 13: # enter key to confirm
+        with open(config["PATH"]["FILE_LOCATION"], "w+") as file:
+            for w in total_waypoints:
+                file.write(str(w[0]*scaler) + "," + str(-w[1]*scaler) + "\n")
+    
+        with open(config["CONTROL_POINTS"]["FILE_LOCATION"], "w+") as file:
+            file.write(str(start_pos[0]*scaler) + "," + str(-start_pos[1]*scaler) + "\n")
+            for w in control_points:
+                file.write(str(w[0]*scaler) + "," + str(-w[1]*scaler) + "\n")
         break
