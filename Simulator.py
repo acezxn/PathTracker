@@ -1,5 +1,7 @@
 '''
 Modified from https://github.com/arimb/PurePursuit
+
+Simulates pathfollowing with the use of only a single path
 '''
 
 from cgi import print_form
@@ -29,6 +31,17 @@ img_dimension = float(config["FIELD_IMAGE"]["IMAGE_LENGTH"])
 imageNames = []
 
 scaler = field_length / img_dimension
+
+ctlpts = []
+with open(config["CONTROL_POINTS"]["FILE_LOCATION"]) as file:
+    for line in file.readlines():
+        inner = []
+        for i in range(len(line.split(","))):
+            if i == 1:
+                inner.append(-float(line.split(",")[i])/scaler)
+            else:
+                inner.append(float(line.split(",")[i])/scaler)
+        ctlpts.append(list(inner))
 
 path = []
 with open(config["PATH"]["FILE_LOCATION"]) as file:
@@ -62,11 +75,11 @@ while True:
     
     # call pure pursuit
     if algorithm == "RAMSETE":
-        Ramsete.run(robot)
+        Ramsete.run(robot, path)
     elif algorithm == "PURE_PURSUIT":
-        PurePursuit.run(robot)
+        PurePursuit.run(robot, path)
     else:
-        SIMPLE.run(robot)
+        SIMPLE.run(robot, ctlpts, False)
         
     key = cv2.waitKey()
     if (key == ord('r')):

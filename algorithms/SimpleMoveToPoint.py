@@ -1,5 +1,6 @@
 '''
 Modified from https://github.com/arimb/PurePursuit
+Turn -> Move -> Turn -> Move ...
 '''
 
 from cgi import print_form
@@ -122,7 +123,7 @@ def distancePID(coord):
     e_theta = math.atan2(coord[0], coord[1])
     
     
-    desired_linearVelocity = min(max(0.2*abs(e_y), 10), 1000)
+    desired_linearVelocity = min(max(0.1*abs(e_y), 10), 1000)
     
     desired_angularVelocity = min(max(0.2*abs(e_theta), 0), 2*math.pi)
             
@@ -157,19 +158,28 @@ def distancePID(coord):
     return [leftWheel, rightWheel]
     
 def anglePID(target_angle):  
-    global prevAngError
+    global prevAngError, angle
     
-    Kp = 1000
-    Kd = 2000
+    
+    Kp = 2000
+    Kd = 1000
+    
+    current_angle = 0
     # convert to 0~2pi
-    current_angle = angle
-    if target_angle < 0:
-        target_angle = 2*math.pi + target_angle
-    if angle < 0:
-        current_angle = 2*math.pi + angle    
+    formated_current_angle = formatAngle(angle)
+    formated_target_angle = formatAngle(target_angle)
+    if formated_target_angle < 0:
+        target_angle = 2*math.pi + formated_target_angle
+    if formated_current_angle < 0:
+        current_angle = 2*math.pi + formated_current_angle   
+    else:
+        current_angle = formated_current_angle
         
+    if (abs(formated_target_angle-formated_current_angle) < abs(target_angle - current_angle)):
+        target_angle = formated_target_angle
+        current_angle = formated_current_angle
     e_theta = target_angle - current_angle
-    print(target_angle * 180 / math.pi, current_angle * 180 / math.pi)
+    
     
     if abs(e_theta) > 0.01:
         e_theta = target_angle - current_angle
@@ -183,16 +193,20 @@ def anglePID(target_angle):
         
 
 def draw_path(img):
-    cv2.circle(img, (int(start_pos[0]+path[0][0]), int(start_pos[1]-path[0][1])), 2,
+    try:
+        cv2.circle(img, (int(start_pos[0]+path[0][0]), int(start_pos[1]-path[0][1])), 2,
             (255, 0, 255), -1)
-    for i in range(2, len(path)):
-        cv2.circle(img, (int(start_pos[0]+path[i][0]), int(start_pos[1]-path[i][1])), 2,
-                (255, 0, 255), -1)
-        cv2.line(img, (int(start_pos[0]+path[i][0]), int(start_pos[1]-path[i][1])),
-                (int(start_pos[0]+path[i-1][0]), int(start_pos[1]-path[i-1][1])),
-                (255, 0, 255), 1)
+        for i in range(2, len(path)):
+            cv2.circle(img, (int(start_pos[0]+path[i][0]), int(start_pos[1]-path[i][1])), 2,
+                    (255, 0, 255), -1)
+            cv2.line(img, (int(start_pos[0]+path[i][0]), int(start_pos[1]-path[i][1])),
+                    (int(start_pos[0]+path[i-1][0]), int(start_pos[1]-path[i-1][1])),
+                    (255, 0, 255), 1)
+    except:
+        pass
 
 def draw_robot(img):
+    global angle
     tmp = img.copy()
     cv2.circle(tmp, (int(start_pos[0]+pos[0]), int(start_pos[1]-pos[1])), 4,
             (0, 255, 255), -1)
@@ -247,7 +261,7 @@ def click(event, x, y, flags, param):
         angle = 0
         wheels = [0, 0]
 
-def run(robot):
+def run(robot, input_path, turnOnly):
     global config, field_length, img_dimension, scaler, width, length, path, exportEnabled, pos, start_pos, angle, wheels, close, look, curv, imageNames
     field_length = float(config["FIELD_IMAGE"]["FIELD_LENGTH"])
     img_dimension = float(config["FIELD_IMAGE"]["IMAGE_LENGTH"])
@@ -255,16 +269,7 @@ def run(robot):
 
     scaler = robot.scaler
 
-    path = []
-    with open(config["CONTROL_POINTS"]["FILE_LOCATION"]) as file:
-        for line in file.readlines():
-            inner = []
-            for i in range(len(line.split(","))):
-                if i == 1:
-                    inner.append(-float(line.split(",")[i])/scaler)
-                else:
-                    inner.append(float(line.split(",")[i])/scaler)
-            path.append(list(inner))
+    path = input_path
 
     width = robot.width
     length = robot.length
@@ -273,6 +278,7 @@ def run(robot):
 
     pos = robot.pos
     angle = robot.angle
+    
     itt = 0
     wheels = [0,0]
 
@@ -288,18 +294,39 @@ def run(robot):
     cv2.imshow("img", img)
     cv2.setMouseCallback('img', click)
 
-    for z in range(1, len(path)-1):
-        target = path[z]
-        localTarget = absToLocal(target)
-        faceAngle = math.atan2(target[0]-pos[0], target[1]-pos[1])
-        
-        if (z == 1):
-            angle = faceAngle
-        else:
-            # rotate to angle
+    if not turnOnly:
+        for z in range(1, len(path)-1):
+            target = path[z]
+            localTarget = absToLocal(target)
+            faceAngle = math.atan2(target[0]-pos[0], target[1]-pos[1])
+            
+            if (z == 1):
+                if (abs(target[0]-pos[0]) > 1 or abs(target[1]-pos[1]) > 1):
+                    angle = faceAngle
+            else:
+                # rotate to angle
+                while True:
+                    last_wheels = wheels
+                    wheels = anglePID(faceAngle)
+                    if wheels == [0,0]:
+                        break
+                    
+                    for i, w in enumerate(wheels):
+                        wheels[i] = last_wheels[i] + min(robot.maxVChange*dt, max(-robot.maxVChange*dt, w-last_wheels[i]))
+
+                    pos = (pos[0] + (wheels[0]+wheels[1])/2*dt * math.sin(angle), pos[1] + (wheels[0]+wheels[1])/2*dt * math.cos(angle))
+                    angle += math.atan((wheels[0]-wheels[1])/width*dt)
+                    
+                    draw_robot(img)
+                    itt += 1
+                
+            
+            # move to point
             while True:
                 last_wheels = wheels
-                wheels = anglePID(faceAngle)
+                target = path[z]
+                localTarget = absToLocal(target)
+                wheels = distancePID(localTarget)
                 
                 if wheels == [0,0]:
                     break
@@ -312,31 +339,15 @@ def run(robot):
                 
                 draw_robot(img)
                 itt += 1
-            
-        
-        # move to point
-        while True:
-            last_wheels = wheels
-            target = path[z]
-            localTarget = absToLocal(target)
-            wheels = distancePID(localTarget)
-            
-            if wheels == [0,0]:
-                break
-            
-            for i, w in enumerate(wheels):
-                wheels[i] = last_wheels[i] + min(robot.maxVChange*dt, max(-robot.maxVChange*dt, w-last_wheels[i]))
-
-            pos = (pos[0] + (wheels[0]+wheels[1])/2*dt * math.sin(angle), pos[1] + (wheels[0]+wheels[1])/2*dt * math.cos(angle))
-            angle += math.atan((wheels[0]-wheels[1])/width*dt)
-            
-            draw_robot(img)
-            itt += 1
-        
+    
     target = path[len(path)-1]
     localTarget = absToLocal(target)
     faceAngle = math.atan2(target[0]-pos[0], target[1]-pos[1])
-    
+    if turnOnly:
+        faceAngle = math.atan2(target[0], target[1])
+        if abs(target[0]) < 1 and abs(target[1]) < 1:
+            faceAngle = angle
+            
     # rotate to angle
     while True:
         last_wheels = wheels
@@ -349,11 +360,13 @@ def run(robot):
             wheels[i] = last_wheels[i] + min(robot.maxVChange*dt, max(-robot.maxVChange*dt, w-last_wheels[i]))
 
         pos = (pos[0] + (wheels[0]+wheels[1])/2*dt * math.sin(angle), pos[1] + (wheels[0]+wheels[1])/2*dt * math.cos(angle))
+        print(angle)
         angle += math.atan((wheels[0]-wheels[1])/width*dt)
         
         draw_robot(img)
         itt += 1
     
+    robot.angle = angle
     if exportEnabled:
         with imageio.get_writer('images/movie.gif', mode='I') as writer:
             print("Writing gif to images/movie.gif")

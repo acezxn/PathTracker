@@ -1,5 +1,6 @@
 '''
 Modified from https://github.com/arimb/PurePursuit
+Pure pursuit path follower
 '''
 
 from cgi import print_form
@@ -176,7 +177,7 @@ def click(event, x, y, flags, param):
         angle = 0
         wheels = [0, 0]
 
-def run(robot):
+def run(robot, input_path):
     global config, field_length, img_dimension, scaler, width, length, path, exportEnabled, pos, start_pos, angle, wheels, close, look, curv, imageNames
     field_length = float(config["FIELD_IMAGE"]["FIELD_LENGTH"])
     img_dimension = float(config["FIELD_IMAGE"]["IMAGE_LENGTH"])
@@ -184,16 +185,7 @@ def run(robot):
 
     scaler = robot.scaler
 
-    path = []
-    with open(config["PATH"]["FILE_LOCATION"]) as file:
-        for line in file.readlines():
-            inner = []
-            for i in range(len(line.split(","))):
-                if i == 1:
-                    inner.append(-float(line.split(",")[i])/scaler)
-                else:
-                    inner.append(float(line.split(",")[i])/scaler)
-            path.append(list(inner))
+    path = input_path
 
     width = robot.width
     length = robot.length
@@ -246,6 +238,7 @@ def run(robot):
         draw_robot(img)
         itt += 1
         
+    robot.angle = angle
     if exportEnabled:
         with imageio.get_writer('images/movie.gif', mode='I') as writer:
             print("Writing gif to images/movie.gif")
