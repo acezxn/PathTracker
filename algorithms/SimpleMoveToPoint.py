@@ -6,6 +6,7 @@ Turn -> Move -> Turn -> Move ...
 from cgi import print_form
 import configparser
 from genericpath import isfile
+from graphics.StratGrapher import *
 import math
 import numpy as np
 import cv2
@@ -261,7 +262,7 @@ def click(event, x, y, flags, param):
         angle = 0
         wheels = [0, 0]
 
-def run(robot, input_path, turnOnly):
+def run(robot, strat_name, input_path, turnOnly):
     global config, field_length, img_dimension, scaler, width, length, path, exportEnabled, pos, start_pos, angle, wheels, close, look, curv, imageNames
     field_length = float(config["FIELD_IMAGE"]["FIELD_LENGTH"])
     img_dimension = float(config["FIELD_IMAGE"]["IMAGE_LENGTH"])
@@ -290,7 +291,12 @@ def run(robot, input_path, turnOnly):
     del path[0]
 
 
-    draw_path(img)
+    if len(strat_name) != 0:
+        graph_paths(img, strat_name)
+        graph_ctlpoints(img, strat_name)
+    else:
+        draw_path(img)
+    
     cv2.imshow("img", img)
     cv2.setMouseCallback('img', click)
 

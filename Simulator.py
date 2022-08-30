@@ -75,11 +75,11 @@ while True:
     
     # call pure pursuit
     if algorithm == "RAMSETE":
-        Ramsete.run(robot, path)
+        Ramsete.run(robot, "", path)
     elif algorithm == "PURE_PURSUIT":
-        PurePursuit.run(robot, path)
+        PurePursuit.run(robot, "", path)
     else:
-        SIMPLE.run(robot, ctlpts, False)
+        SIMPLE.run(robot, "", ctlpts, False)
         
     key = cv2.waitKey()
     if (key == ord('r')):

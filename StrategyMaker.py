@@ -1,3 +1,7 @@
+'''
+Make strategies and run them
+'''
+
 from PathGenerator import generate_path
 from objects.Robot import Robot
 import algorithms.PurePursuit as PurePursuit
@@ -79,10 +83,10 @@ def runStrategy():
                 path.append(list(inner))
             robot.start_pos = path[0]
             print("turning", robot.angle)
-            SIMPLE.run(robot, [path[2],path[2]], True) 
+            SIMPLE.run(robot, strat_name, [path[2],path[2]], True) 
             # SIMPLE.rotateToAngle(path[0], math.atan2(path[2][0], path[2][1]))
             
-            SIMPLE.run(robot, path, False)   
+            SIMPLE.run(robot, strat_name, path, False)   
             if (k == len(actions)-1):    
                 key = cv2.waitKey()
                     
@@ -102,9 +106,9 @@ def runStrategy():
             # SIMPLE.rotateToAngle(path[0], math.atan2(path[2][0], path[2][1]))
             robot.start_pos = path[0]
             print("turning", robot.angle)
-            SIMPLE.run(robot, [path[2],path[2]], True) 
+            SIMPLE.run(robot, strat_name, [path[2],path[2]], True) 
 
-            PurePursuit.run(robot, path)        
+            PurePursuit.run(robot, strat_name, path)        
             if (k == len(actions)-1):    
                 key = cv2.waitKey()
 
@@ -123,9 +127,9 @@ def runStrategy():
             # SIMPLE.rotateToAngle(path[0], math.atan2(path[2][0], path[2][1]))
             robot.start_pos = path[0]
             print("turning", robot.angle)
-            SIMPLE.run(robot, [path[2],path[2]], True) 
+            SIMPLE.run(robot, strat_name, [path[2],path[2]], True) 
 
-            Ramsete.run(robot, path)     
+            Ramsete.run(robot, strat_name, path)     
             if (k == len(actions)-1):    
                 key = cv2.waitKey()   
 
