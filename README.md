@@ -35,3 +35,8 @@ Extends the path generator and allow multiple paths with different tracking algo
 - ​control_points: A folder that contains user inputted control points of each path, whereas the paths would be ordered numerically.
 - paths: A folder that contains cutmull rom generated paths, which would be numerically ordered.
 ​
+**paths**
+
+- Yellow straight lines indicates that the robot would follow the path using simply drive forward and turn.
+- Megenta lines indicates that the robot would follow the path with pure pursuit.
+- Blue lines indicates that the robot would follow the path with ramsete.

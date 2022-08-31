@@ -116,6 +116,7 @@ def turn(curv, vel, trackwidth):
     return  [vel*(1+curv*trackwidth/2), vel*(1-curv*trackwidth/2)]
 
 prevAngError = 0
+prevctloutput = 0
 
 def distancePID(coord):
     
@@ -159,7 +160,7 @@ def distancePID(coord):
     return [leftWheel, rightWheel]
     
 def anglePID(target_angle):  
-    global prevAngError, angle
+    global prevAngError, prevctloutput, angle
     
     
     Kp = 2000
@@ -182,11 +183,12 @@ def anglePID(target_angle):
     e_theta = target_angle - current_angle
     
     
-    if abs(e_theta) > 0.01:
+    if abs(e_theta) > 0.01 or abs(prevctloutput) > 1: # to ensure the robot rotates to the target angle and settles
         e_theta = target_angle - current_angle
         deriv_theta = e_theta - prevAngError
         
         ctl_output = max(min(e_theta * Kp + deriv_theta * Kd, 1000), -1000)
+        prevctloutput = ctl_output
         prevAngError = e_theta
         return [ctl_output, -ctl_output]
     else:
