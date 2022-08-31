@@ -1,8 +1,10 @@
+![PathTracker](https://user-images.githubusercontent.com/14313049/187714439-a0fe8056-106f-4645-9821-fbf6778bcde1.png)
+
+
 # VEX spin up path tracking simulator
 
 modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be compatible with VEX spin up competition.
 
-![image](https://github.com/acezxn/PathTracker/blob/main/images/pure_pursuit.gif)
 
 ## Additions
 
@@ -11,6 +13,11 @@ modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be co
 - Used to-scale units (length is in cm)
 - Allowed overlapped paths
 - Added ramsete controller
+
+## Functionalities
+<p align="center">
+<img src="https://user-images.githubusercontent.com/14313049/187715396-4e303fdd-b57b-4b49-b3ef-799f9d6185fa.png" width="500" height="500"/>
+</p>
 
 ### Path generator
 
