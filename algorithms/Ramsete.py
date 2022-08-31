@@ -123,7 +123,7 @@ def draw_path(img):
                 (int(start_pos[0]+path[i-1][0]), int(start_pos[1]-path[i-1][1])),
                 (255, 0, 255), 1)
 
-def draw_robot(img):
+def draw_robot(img, robot, strat_name):
     tmp = img.copy()
     cv2.circle(tmp, (int(start_pos[0]+pos[0]), int(start_pos[1]-pos[1])), 4,
             (0, 255, 255), -1)
@@ -166,9 +166,14 @@ def draw_robot(img):
 
     cv2.imshow("img", tmp)
     if exportEnabled:
-        if itt%6==0:
-            cv2.imwrite("images/" + str(itt) + ".png", tmp)
-            imageNames.append("images/" + str(itt) + ".png")
+        if len(strat_name) == 0:
+            if itt%6==0:
+                cv2.imwrite("images/" + str(itt) + ".png", tmp)
+                imageNames.append("images/" + str(itt) + ".png")
+        else:
+            if robot.itt%6==0:
+                cv2.imwrite("images/" + str(robot.itt) + ".png", tmp)
+                imageNames.append("images/" + str(robot.itt) + ".png")
     cv2.waitKey(5)
 
 def click(event, x, y, flags, param):
@@ -266,12 +271,16 @@ def run(robot, strat_name, input_path):
         pos = (pos[0] + (wheels[0]+wheels[1])/2*dt * math.sin(angle), pos[1] + (wheels[0]+wheels[1])/2*dt * math.cos(angle))
         angle += math.atan((wheels[0]-wheels[1])/width*dt)
         
-        draw_robot(img)
-        itt += 1
+        draw_robot(img, robot, strat_name)
+        if len(strat_name) == 0:
+            itt += 1
+        else:
+            robot.itt += 1
     
     print(angle)
     robot.angle = angle 
-    if exportEnabled:
+    robot.imageNames += imageNames
+    if exportEnabled and len(strat_name) == 0:
         with imageio.get_writer('images/movie.gif', mode='I') as writer:
             print("Writing gif to images/movie.gif")
             for name in tqdm(imageNames):

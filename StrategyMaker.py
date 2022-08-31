@@ -13,6 +13,18 @@ import cv2
 import math
 import configparser
 import time
+import imageio
+from tqdm import tqdm
+
+def decrease_brightness(img, value=30):
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        h, s, v = cv2.split(hsv)
+
+        v[True] -= value
+
+        final_hsv = cv2.merge((h, s, v))
+        img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+        return img
 
 def makeStrategy():
     pos = []
@@ -48,6 +60,7 @@ def runStrategy():
 
     field_length = float(config["FIELD_IMAGE"]["FIELD_LENGTH"])
     img_dimension = float(config["FIELD_IMAGE"]["IMAGE_LENGTH"])
+    export_enabled = int(config["EXPORT"]["ENABLED"])
     imageNames = []
 
     scaler = field_length / img_dimension
@@ -66,6 +79,13 @@ def runStrategy():
                 inner.append(l)
         actions.append(inner)
     print(actions)
+    
+    field = cv2.imread(config["FIELD_IMAGE"]["FILE_LOCATION"])
+    img = decrease_brightness(field, 100)
+    
+    cv2.imshow("img", img)
+    
+    cv2.waitKey(0) 
     
     # run actions.csv
     for k, command in enumerate(actions):
@@ -105,7 +125,6 @@ def runStrategy():
                 path.append(list(inner))
             # SIMPLE.rotateToAngle(path[0], math.atan2(path[2][0], path[2][1]))
             robot.start_pos = path[0]
-            print("turning", robot.angle)
             SIMPLE.run(robot, strat_name, [path[2],path[2]], True) 
 
             PurePursuit.run(robot, strat_name, path)        
@@ -132,7 +151,13 @@ def runStrategy():
             Ramsete.run(robot, strat_name, path)     
             if (k == len(actions)-1):    
                 key = cv2.waitKey()   
-
+    
+    if export_enabled:
+        with imageio.get_writer('images/movie.gif', mode='I') as writer:
+            print("Writing gif to images/movie.gif")
+            for name in tqdm(robot.imageNames):
+                writer.append_data(imageio.imread(name))
+            print("Done!")
 
 if __name__ == "__main__":
     print("""

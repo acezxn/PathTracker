@@ -21,3 +21,7 @@ class Robot:
         self.pos = (0,0)
         self.start_pos = (0,0)
         self.angle = 0.0
+        
+        # for exporting
+        self.itt = 0
+        self.imageNames = []
