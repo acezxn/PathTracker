@@ -48,9 +48,9 @@ def place_point(img, x, y, shift, add):
         else:
             y = start_pos[1] - waypoints[-1][1]
             
-    cv2.circle(img, (x, y), 3, (0, 255, 255), -1)
+    cv2.circle(img, (x, y), 3, (255, 255, 255), -1)
     if len(waypoints)>0:
-        cv2.line(img, (x, y), (start_pos[0]+waypoints[-1][0], start_pos[1]-waypoints[-1][1]), (0, 255, 255), 2)
+        cv2.line(img, (x, y), (start_pos[0]+waypoints[-1][0], start_pos[1]-waypoints[-1][1]), (255, 255, 255), 2)
     if add:
         waypoints.append((x - start_pos[0], start_pos[1] - y))
         control_points.append((x - start_pos[0], start_pos[1] - y)) 

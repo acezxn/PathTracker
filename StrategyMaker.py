@@ -14,6 +14,7 @@ import math
 import configparser
 import time
 import imageio
+import tkinter as tk
 from tqdm import tqdm
 
 def decrease_brightness(img, value=30):
@@ -26,9 +27,43 @@ def decrease_brightness(img, value=30):
         img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
         return img
 
+strat_name = ""
+pathNo = 0
+
 def makeStrategy():
+    global strat_name
+    
+    window = tk.Tk()
+    
+    def set_strat_name():
+        global strat_name
+        strat_name = entry.get()
+        window.destroy()
+
+    def writeToFile():
+        global strat_name, pathNo
+        algo = var.get()
+        actionFile = open(f"strats/{strat_name}/actions.csv", "a+")
+        actionFile.write(f"{algo},{pathNo},0\n")
+        actionFile.close()   
+        print("written")
+        pathNo += 1
+        window.destroy()
+    
     pos = []
-    strat_name = input("Input the strategy name: ")
+    label = tk.Label(text="Input the strategy name: ")
+    label.pack()
+    
+    entry = tk.Entry()
+    entry.pack()
+
+    button = tk.Button(window, text= "confirm", command=set_strat_name)
+    button.pack()
+    
+    window.mainloop()
+    # while strat_name == "":
+    #     pass
+    # strat_name = input("Input the strategy name: ")
 
     os.mkdir(f"strats/{strat_name}")
     os.mkdir(f"strats/{strat_name}/control_points")
@@ -40,12 +75,24 @@ def makeStrategy():
         end_pos = generate_path(pos, strat_name)
         if len(end_pos) == 2:
             pos = [end_pos[0], -end_pos[1]]
-            algo = input("what algo would you want the robot to follow this path (RAMSETE, PURE_PURSUIT, or SIMPLE): ")
-            actionFile = open(f"strats/{strat_name}/actions.csv", "a+")
-            actionFile.write(f"{algo},{pathNo},0\n")
-            actionFile.close()   
-            print("written")
-            pathNo += 1
+            
+            window = tk.Tk()
+
+
+            label = tk.Label(text="what algo would you want the robot to follow this path (RAMSETE, PURE_PURSUIT, or SIMPLE): ")
+            label.pack()
+
+            algo_choices = ["SIMPLE", "PURE_PURSUIT", "RAMSETE"]
+            var = tk.StringVar(window)
+            var.set("SIMPLE")
+            selection = tk.OptionMenu(window, var, *algo_choices)
+            selection.pack()
+
+            button = tk.Button(window, text= "confirm", command=writeToFile)
+            button.pack()
+
+            window.mainloop()
+    
         else:
             break
         
@@ -80,12 +127,12 @@ def runStrategy():
         actions.append(inner)
     print(actions)
     
-    field = cv2.imread(config["FIELD_IMAGE"]["FILE_LOCATION"])
-    img = decrease_brightness(field, 100)
+    # field = cv2.imread(config["FIELD_IMAGE"]["FILE_LOCATION"])
+    # img = decrease_brightness(field, 100)
     
-    cv2.imshow("img", img)
+    # cv2.imshow("img", img)
     
-    cv2.waitKey(0) 
+    # cv2.waitKey(0) 
     
     # run actions.csv
     for k, command in enumerate(actions):
