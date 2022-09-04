@@ -28,12 +28,15 @@ def decrease_brightness(img, value=30):
         return img
 
 strat_name = ""
+mainMenuOption = ""
 pathNo = 0
 
 def makeStrategy():
     global strat_name
     
     window = tk.Tk()
+    window.title("Create strategy")
+    window.geometry("400x200")
     
     def set_strat_name():
         global strat_name
@@ -49,6 +52,7 @@ def makeStrategy():
         print("written")
         pathNo += 1
         window.destroy()
+        
     
     pos = []
     label = tk.Label(text="Input the strategy name: ")
@@ -57,7 +61,7 @@ def makeStrategy():
     entry = tk.Entry()
     entry.pack()
 
-    button = tk.Button(window, text= "confirm", command=set_strat_name)
+    button = tk.Button(window, text= "confirm", height = 2, width = 5, command=set_strat_name)
     button.pack()
     
     window.mainloop()
@@ -68,6 +72,7 @@ def makeStrategy():
     os.mkdir(f"strats/{strat_name}")
     os.mkdir(f"strats/{strat_name}/control_points")
     os.mkdir(f"strats/{strat_name}/paths")
+    os.mkdir(f"strats/{strat_name}/coordinates")
 
     pathNo = 0
 
@@ -88,7 +93,7 @@ def makeStrategy():
             selection = tk.OptionMenu(window, var, *algo_choices)
             selection.pack()
 
-            button = tk.Button(window, text= "confirm", command=writeToFile)
+            button = tk.Button(window, text= "confirm", height = 2, width = 5, command=writeToFile)
             button.pack()
 
             window.mainloop()
@@ -98,6 +103,12 @@ def makeStrategy():
         
     
 def runStrategy():
+    global strat_name
+    
+    def set_strat_name():
+        global strat_name
+        strat_name = entry.get()
+        window.destroy()
     
     config = configparser.ConfigParser()
     config.read("config.ini")
@@ -113,7 +124,21 @@ def runStrategy():
     scaler = field_length / img_dimension
 
     # parse actions.csv
-    strat_name = input("Input the strategy name: ")
+    window = tk.Tk()
+    window.title("Run strategy")
+    window.geometry("400x200")
+    
+    label = tk.Label(text="Input the strategy name: ")
+    label.pack()
+    
+    entry = tk.Entry()
+    entry.pack()
+
+    button = tk.Button(window, text= "confirm", height = 2, width = 5, command=set_strat_name)
+    button.pack()
+    
+    window.mainloop()
+    
     strat_dir = f"strats/{strat_name}/"
     actionFile = open(strat_dir + "actions.csv", "r")
     actions = []
@@ -206,14 +231,70 @@ def runStrategy():
                 writer.append_data(imageio.imread(name))
             print("Done!")
 
+def mainMenuSelect():
+        global mainMenuOption
+        mainMenuOption = var.get()
+        window.destroy()
+
+def findCoordinate():
+    global mouse_down, scaler
+    
+    def click(event, x, y, flags, param):
+        global mouse_down, scaler
+        if event == cv2.EVENT_LBUTTONDOWN:
+            mouse_down = True
+        if event == cv2.EVENT_LBUTTONUP and mouse_down:
+            mouse_down = False
+            window = tk.Tk()
+            label = tk.Label(text=f"({x * scaler}, {y * scaler})")
+            label.pack()
+            window.mainloop()
+            
+            
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    
+    field = cv2.imread(config["FIELD_IMAGE"]["FILE_LOCATION"])
+    img_dimension = float(config["FIELD_IMAGE"]["IMAGE_LENGTH"])
+    export_enabled = int(config["EXPORT"]["ENABLED"])
+    imageNames = []
+
+    scaler = 100 / img_dimension
+    
+    img = decrease_brightness(field, 100)
+    mouse_down = False
+    
+    cv2.imshow("img", img)
+    cv2.setMouseCallback('img', click)
+    
+    cv2.waitKey(0) 
+    
+
+
 if __name__ == "__main__":
-    print("""
-    1) Create a new strategy
-    2) Run a strategy
-          """)
-    action = input("Select an option: ")
-    if (action == "1"):
+    window = tk.Tk()
+    window.title("Main menu")
+    window.geometry("400x400")
+    
+    label = tk.Label(text="PathTracker", font = ("Arial", 30))
+    label.pack(pady = 100)
+    
+    options = ["Create a new strategy", "Run a strategy", "Find coordinates"]
+    var = tk.StringVar(window)
+    var.set("Create a new strategy")
+    selection = tk.OptionMenu(window, var, *options)
+    selection.config(width=len(max(options, key=len)))
+    selection.pack(pady = 10, ipadx=10)
+    
+    button = tk.Button(window, text= "confirm", height = 2, width = 5, command=mainMenuSelect)
+    button.pack()
+    
+    window.mainloop()
+
+    if (mainMenuOption == options[0]):
         makeStrategy()
-    elif (action == "2"):
+    elif (mainMenuOption == options[1]):
         runStrategy()
+    elif (mainMenuOption == options[2]):
+        findCoordinate()
     

@@ -41,6 +41,7 @@ Extends the path generator and allow multiple paths with different tracking algo
 ​For example, RAMSETE,1,0 means to use RAMSETE to follow path 1 (the third value has no meaning).
 - ​control_points: A folder that contains user inputted control points of each path, whereas the paths would be ordered numerically.
 - paths: A folder that contains cutmull rom generated paths, which would be numerically ordered.
+- coordinates: A folder containing coordinates of control points in percentage format (0,0 is the top left corder, and 100,100 is the bottom right corner)
 ​
 **paths**
 

@@ -82,7 +82,8 @@ def generate_path(initial_position, strat_name):
         field_length = float(config["FIELD_IMAGE"]["FIELD_LENGTH"])
         img_dimension = float(config["FIELD_IMAGE"]["IMAGE_LENGTH"])
 
-        scaler = field_length / img_dimension
+        scaler = field_length / img_dimension # scaler for cm conversion
+        scalerPCT = 100 / img_dimension # scaler for percentage conversion
 
 
         # READ & SHOW IMAGE, SET OPENCV PROPERTIES
@@ -171,6 +172,11 @@ def generate_path(initial_position, strat_name):
                     file.write(str(start_pos[0]*scaler) + "," + str(-start_pos[1]*scaler) + "\n")
                     for w in control_points:
                         file.write(str(w[0]*scaler) + "," + str(-w[1]*scaler) + "\n")
+                        
+                with open(config["STRATEGY"]["FOLDER_LOCATION"] + strat_name + "/coordinates/" + f"{pathNo}.csv", "w+") as file:
+                    file.write(str(start_pos[0]*scalerPCT) + "," + str(start_pos[1]*scalerPCT) + "\n")
+                    for w in control_points:
+                        file.write(str((start_pos[0] + w[0])*scalerPCT) + "," + str((start_pos[1] - w[1])*scalerPCT) + "\n")
                
                 pathNo += 1
                 return [(start_pos[0] + control_points[len(control_points)-2][0]), -(start_pos[1] - control_points[len(control_points)-2][1])]
