@@ -35,7 +35,7 @@ modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be co
 
 Extends the path generator and allow multiple paths with different tracking algorithms to be planned and combined into one "strategy." The strategies generated would be stored in the strats directory, and simulated with the strategy maker. 
 
-**Structures of a strategy folder**
+#### Structures of a strategy folder
 
 - actions.csv: A csv file that programs the order and the way each path is followed.
 ​For example, RAMSETE,1,0 means to use RAMSETE to follow path 1 (the third value has no meaning).
@@ -43,7 +43,8 @@ Extends the path generator and allow multiple paths with different tracking algo
 - paths: A folder that contains cutmull rom generated paths, which would be numerically ordered.
 - coordinates: A folder containing coordinates of control points in percentage format (0,0 is the top left corder, and 100,100 is the bottom right corner)
 ​
-**paths**
+​
+#### paths
 
 - Yellow straight lines indicates that the robot would follow the path using simply drive forward and turn.
 - Megenta lines indicates that the robot would follow the path with pure pursuit.

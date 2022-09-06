@@ -174,7 +174,6 @@ def generate_path(initial_position, strat_name):
                         file.write(str(w[0]*scaler) + "," + str(-w[1]*scaler) + "\n")
                         
                 with open(config["STRATEGY"]["FOLDER_LOCATION"] + strat_name + "/coordinates/" + f"{pathNo}.csv", "w+") as file:
-                    file.write(str(start_pos[0]*scalerPCT) + "," + str(start_pos[1]*scalerPCT) + "\n")
                     for w in control_points:
                         file.write(str((start_pos[0] + w[0])*scalerPCT) + "," + str((start_pos[1] - w[1])*scalerPCT) + "\n")
                
