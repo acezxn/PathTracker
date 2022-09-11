@@ -16,6 +16,7 @@ import time
 import imageio
 import tkinter as tk
 from tqdm import tqdm
+import numpy as np
 
 def decrease_brightness(img, value=30):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -236,11 +237,39 @@ def mainMenuSelect():
         mainMenuOption = var.get()
         window.destroy()
 
+def draw_robot(img, x, y):
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    
+    field_length = float(config["FIELD_IMAGE"]["FIELD_LENGTH"])
+    img_dimension = float(config["FIELD_IMAGE"]["IMAGE_LENGTH"])
+
+    scaler = field_length / img_dimension # scaler for cm conversion
+    length = float(config["ROBOT"]["LENGTH"]) / scaler
+    width = float(config["ROBOT"]["TRACKWIDTH"]) / scaler
+    
+    tmp = img.copy()
+    cv2.circle(tmp, (int(x), int(y)), 4,
+            (0, 255, 255), -1)
+    cv2.drawContours(tmp, [np.array([((x+length/2*math.sin(0)-width/2*math.cos(0)),
+                                    (y+length/2*math.cos(0)+width/2*math.sin(0))),
+                                    ((x+length/2*math.sin(0)+width/2*math.cos(0)),
+                                    (y+length/2*math.cos(0)-width/2*math.sin(0))),
+                                    ((x-length/2*math.sin(0)+width/2*math.cos(0)),
+                                    (y-length/2*math.cos(0)-width/2*math.sin(0))),
+                                    ((x-length/2*math.sin(0)-width/2*math.cos(0)),
+                                    (y-length/2*math.cos(0)+width/2*math.sin(0)))])
+                    .reshape((-1,1,2)).astype(np.int32)], 0, (0, 255, 255), 2)
+    cv2.circle(tmp, (int(x), int(y)), int(math.sqrt((length/2)**2 + (width/2)**2)), (0, 255, 0), 1)
+    cv2.imshow("img", tmp)
+    
 def findCoordinate():
-    global mouse_down, scaler
+    global mouse_down, scaler, img
+    
     
     def click(event, x, y, flags, param):
-        global mouse_down, scaler
+        global mouse_down, scaler, img
+        draw_robot(img, x, y)
         if event == cv2.EVENT_LBUTTONDOWN:
             mouse_down = True
         if event == cv2.EVENT_LBUTTONUP and mouse_down:
