@@ -49,3 +49,29 @@ Extends the path generator and allow multiple paths with different tracking algo
 - Yellow straight lines indicates that the robot would follow the path using simply drive forward and turn.
 - Megenta lines indicates that the robot would follow the path with pure pursuit.
 - Blue lines indicates that the robot would follow the path with ramsete.
+
+
+## How to use
+
+### Create strategy
+
+- Click on the field image to insert control points
+    - SIMPLE:
+        - the path starts at the first control point, ends at the previous point of the last point. The last point determines the direction of the facing.
+    - PURE_PURSUIT and RAMSETE:
+        - the path starts at the second control point, but the robot would still start at the first point. The path ends at the previous point of the last point.
+- Press ENTER to cutmul rom spline curve. Press ENTER again to confirm, or else press any buton except ESC to re-draw.
+- Select how to run the path through the selection window
+- press ESC to stop drawing
+
+The strategy would be stored in strats/[NAME].
+
+### Run strategy
+
+- Insert strategy name (folder name of strats/[NAME])
+- Press ESC to stop simulation
+
+### Find coordinates
+
+- The box appeared on the cursor indicates the robot's size, and the circle around shows all possible collision area at the point.
+- Click on the field image to show the coordinates on the specific point.
