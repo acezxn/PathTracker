@@ -3,7 +3,6 @@ Modified from https://github.com/arimb/PurePursuit
 Pure pursuit path follower
 '''
 
-from cgi import print_form
 import configparser
 from genericpath import isfile
 from graphics.StratGrapher import *
