@@ -36,25 +36,28 @@ exportEnabled = 0
 itt = 0
     
 def decrease_brightness(img, value=30):
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        h, s, v = cv2.split(hsv)
+    # decrease brightness of an image
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(hsv)
 
-        v[True] -= value
+    v[True] -= value
 
-        final_hsv = cv2.merge((h, s, v))
-        img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
-        return img
+    final_hsv = cv2.merge((h, s, v))
+    img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+    return img
 
 def absToLocal(coord):
-    xDist = coord[0] - pos[0];
-    yDist = coord[1] - pos[1];
+    # absolute to local coordinate
+    xDist = coord[0] - pos[0]
+    yDist = coord[1] - pos[1]
     
-    newX = xDist*math.cos(angle) - yDist*math.sin(angle);
-    newY = xDist*math.sin(angle) + yDist*math.cos(angle);
+    newX = xDist*math.cos(angle) - yDist*math.sin(angle)
+    newY = xDist*math.sin(angle) + yDist*math.cos(angle)
 
     return (newX, newY)
 
 def formatAngle(a):
+    # format angle to -π / π
     sign = 1
     if a < 0:
         sign = -1
@@ -66,6 +69,7 @@ def formatAngle(a):
         return sign*(mod-2*math.pi)
     
 def closest():
+    # find the closest point on the path
     mindist = (0, math.sqrt((path[0][0] - pos[0]) ** 2 + (path[0][1] - pos[1]) ** 2))
     for i, p in enumerate(path):
         dist = math.sqrt((p[0]-pos[0])**2 + (p[1]-pos[1])**2)
@@ -74,7 +78,8 @@ def closest():
 
     return mindist[0]
 
-def lookahead():        
+def lookahead():      
+    # find look ahead point  
     radius = float(config["PATH"]["LOOKAHEAD"])/scaler
     for i in range(2, len(path)):
         coord = path[i]
@@ -111,9 +116,11 @@ def lookahead():
     return path[closest()]
 
 def turn(curv, vel, trackwidth):
+    # calculate wheel velocity based on curvature and velocity
     return  [vel*(1+curv*trackwidth/2), vel*(1-curv*trackwidth/2)]
 
 def draw_path(img):
+    # draw path on an image
     cv2.circle(img, (int(start_pos[0]+path[0][0]), int(start_pos[1]-path[0][1])), 2,
             (255, 0, 255), -1)
     for i in range(2, len(path)):
@@ -124,6 +131,7 @@ def draw_path(img):
                 (255, 0, 255), 1)
 
 def draw_robot(img, robot, strat_name):
+    # draw robot on an image
     tmp = img.copy()
     cv2.circle(tmp, (int(start_pos[0]+pos[0]), int(start_pos[1]-pos[1])), 4,
             (0, 255, 255), -1)
@@ -184,6 +192,8 @@ def click(event, x, y, flags, param):
         wheels = [0, 0]
 
 def run(robot, strat_name, input_path):
+    # run simulation
+    
     global config, field_length, img_dimension, scaler, width, length, path, exportEnabled, pos, start_pos, angle, wheels, close, look, curv, imageNames
     field_length = float(config["FIELD_IMAGE"]["FIELD_LENGTH"])
     img_dimension = float(config["FIELD_IMAGE"]["IMAGE_LENGTH"])
