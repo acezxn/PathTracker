@@ -27,7 +27,7 @@ def graph_ctlpoints(img, strat_name):
                 inner.append(l)
         actions.append(inner)
     
-    
+    print(actions)
     for k, file in enumerate(os.listdir(f"strats/{strat_name}/control_points/")):
         path = []
         start = [0,0]

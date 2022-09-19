@@ -47,7 +47,23 @@ def makeStrategy():
     def writeToFile():
         global strat_name, pathNo
         algo = var.get()
+        
         actionFile = open(f"strats/{strat_name}/actions.csv", "a+")
+        
+        actionFileContent = open(f"strats/{strat_name}/actions.csv", "r").read().split("\n")
+        del actionFileContent[-1]
+        
+        while pathNo > 0:          
+            contained = False
+            for line in actionFileContent:
+                if int(line.split(",")[1]) == pathNo-1:
+                    contained = True
+                    break
+            if contained:
+                break
+            else:
+                pathNo -= 1
+        
         actionFile.write(f"{algo},{pathNo},0\n")
         actionFile.close()   
         print("written")
