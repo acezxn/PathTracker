@@ -122,7 +122,7 @@ def generate_path(initial_position, strat_name):
         
         if key == 27: # esc key
             return []
-        elif key == 127: # backspace key
+        elif key == 127 and __name__ != "__main__": # backspace key
             # delete previous path
             data = ""
             with open(config["STRATEGY"]["FOLDER_LOCATION"] + strat_name + "/actions.csv", "r") as file:
