@@ -66,6 +66,7 @@ Code the robot to run multiple paths with different tracking algorithms  and com
         - the path starts at the second control point, but the robot would still start at the first point. The path ends at the previous point of the last point.
 - Press ENTER to cutmul rom spline curve. Press ENTER again to confirm, or else press any buton except ESC to re-draw.
 - Select how to run the path through the selection window
+- Press BACKSPACE to delete the last drawn path
 - press ESC to stop drawing
 
 The strategy would be stored in strats/[NAME].
