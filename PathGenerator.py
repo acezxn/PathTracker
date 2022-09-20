@@ -22,9 +22,41 @@ def decrease_brightness(img, value=30):
     img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
     return img
 
+def draw_robot_on_point(img, x, y, simple):
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    
+    field_length = float(config["FIELD_IMAGE"]["FIELD_LENGTH"])
+    img_dimension = float(config["FIELD_IMAGE"]["IMAGE_LENGTH"])
+
+    scaler = field_length / img_dimension # scaler for cm conversion
+    length = float(config["ROBOT"]["LENGTH"]) / scaler
+    width = float(config["ROBOT"]["TRACKWIDTH"]) / scaler
+    
+    tmp = img.copy()
+    if not simple:
+        cv2.circle(tmp, (int(x), int(y)), 4,
+            (0, 255, 255), -1)
+        cv2.drawContours(tmp, [np.array([((x+length/2*math.sin(0)-width/2*math.cos(0)),
+                                        (y+length/2*math.cos(0)+width/2*math.sin(0))),
+                                        ((x+length/2*math.sin(0)+width/2*math.cos(0)),
+                                        (y+length/2*math.cos(0)-width/2*math.sin(0))),
+                                        ((x-length/2*math.sin(0)+width/2*math.cos(0)),
+                                        (y-length/2*math.cos(0)-width/2*math.sin(0))),
+                                        ((x-length/2*math.sin(0)-width/2*math.cos(0)),
+                                        (y-length/2*math.cos(0)+width/2*math.sin(0)))])
+                        .reshape((-1,1,2)).astype(np.int32)], 0, (0, 255, 255), 2)
+        cv2.circle(tmp, (int(x), int(y)), int(math.sqrt((length/2)**2 + (width/2)**2)), (0, 255, 0), 1)
+
+    else:
+        cv2.circle(tmp, (int(x), int(y)), int(math.sqrt((length/2)**2 + (width/2)**2)), (0, 255, 0), 1)
+    cv2.imshow("Field", tmp)
+    return tmp
+
 # HANDLE MOUSE EVENTS FOR SELECTION
 def click(event, x, y, flags, param):
     global waypoints, img, start_pos, mouse_down
+    draw_robot_on_point(img, x, y, False)
     try:
         if mouse_down:
             tmp = img.copy()
@@ -61,7 +93,9 @@ pathNo = 0
 isdeleting = False
 
 def generate_path(initial_position, strat_name):
-    global waypoints, control_points, start_pos, mouse_down, img, pathNo, isdeleting
+    global waypoints, control_points, start_pos, mouse_down, img, orig_img, pathNo, isdeleting
+    cv2.namedWindow('Field')
+    
     while True:
         
         # INITIALIZE VALUES
@@ -106,6 +140,7 @@ def generate_path(initial_position, strat_name):
 
         # READ & SHOW IMAGE, SET OPENCV PROPERTIES
         img = decrease_brightness(cv2.imread(config["FIELD_IMAGE"]["FILE_LOCATION"]), 100)
+        orig_img = img
         
         if len(initial_position) != 0:          
             graph_ctlpoints(img, strat_name)
@@ -174,8 +209,14 @@ def generate_path(initial_position, strat_name):
                 ty = 0.5 * (p1[1] * q1 + p2[1] * q2 + p3[1] * q3 + p4[1] * q4);
                 
                 total_waypoints.append((tx, ty))
-                    
+            
+            undrawn = img.copy()   
             for i in range(2, len(total_waypoints)):
+                # draw robot
+                tmp = draw_robot_on_point(img, int(start_pos[0]+total_waypoints[i][0]), int(start_pos[1]-total_waypoints[i][1]), True)
+                img = tmp
+                
+                # draw path
                 cv2.circle(img, (int(start_pos[0]+total_waypoints[i][0]),
                                 int(start_pos[1]-total_waypoints[i][1])),
                         2, (150, 0,
@@ -186,6 +227,12 @@ def generate_path(initial_position, strat_name):
                         int(start_pos[1] - total_waypoints[i-1][1])),
                         (150, 0,
                             255), 1)
+            
+            alpha = 0.5
+            img = cv2.addWeighted(undrawn, alpha, img, 1 - alpha, 0)
+
+                
+                
             
         cv2.imshow("Field", img)
         key = cv2.waitKey()

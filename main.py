@@ -253,7 +253,7 @@ def mainMenuSelect():
         mainMenuOption = var.get()
         window.destroy()
 
-def draw_robot(img, x, y):
+def draw_robot_on_point(img, x, y, simple):
     config = configparser.ConfigParser()
     config.read("config.ini")
     
@@ -265,9 +265,10 @@ def draw_robot(img, x, y):
     width = float(config["ROBOT"]["TRACKWIDTH"]) / scaler
     
     tmp = img.copy()
-    cv2.circle(tmp, (int(x), int(y)), 4,
+    if not simple:
+        cv2.circle(tmp, (int(x), int(y)), 4,
             (0, 255, 255), -1)
-    cv2.drawContours(tmp, [np.array([((x+length/2*math.sin(0)-width/2*math.cos(0)),
+        cv2.drawContours(tmp, [np.array([((x+length/2*math.sin(0)-width/2*math.cos(0)),
                                     (y+length/2*math.cos(0)+width/2*math.sin(0))),
                                     ((x+length/2*math.sin(0)+width/2*math.cos(0)),
                                     (y+length/2*math.cos(0)-width/2*math.sin(0))),
@@ -278,6 +279,7 @@ def draw_robot(img, x, y):
                     .reshape((-1,1,2)).astype(np.int32)], 0, (0, 255, 255), 2)
     cv2.circle(tmp, (int(x), int(y)), int(math.sqrt((length/2)**2 + (width/2)**2)), (0, 255, 0), 1)
     cv2.imshow("img", tmp)
+    return tmp
     
 def findCoordinate():
     global mouse_down, scaler, img
@@ -285,7 +287,7 @@ def findCoordinate():
     
     def click(event, x, y, flags, param):
         global mouse_down, scaler, img
-        draw_robot(img, x, y)
+        draw_robot_on_point(img, x, y, False)
         if event == cv2.EVENT_LBUTTONDOWN:
             mouse_down = True
         if event == cv2.EVENT_LBUTTONUP and mouse_down:
