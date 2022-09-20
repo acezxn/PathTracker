@@ -86,7 +86,6 @@ def place_point(img, x, y, shift, add):
         cv2.line(img, (x, y), (start_pos[0]+waypoints[-1][0], start_pos[1]-waypoints[-1][1]), (255, 255, 255), 2)
     if add:
         waypoints.append((x - start_pos[0], start_pos[1] - y))
-        print("WP", (x - start_pos[0], start_pos[1] - y))
         control_points.append((x - start_pos[0], start_pos[1] - y)) 
     
 pathNo = 0
@@ -114,12 +113,10 @@ def generate_path(initial_position, strat_name):
         scalerPCT = 100 / img_dimension # scaler for percentage conversion
         
         if isdeleting:
-            print(pathNo)
             if pathNo >= 1:
                 prevStartPos = open(config["STRATEGY"]["FOLDER_LOCATION"] + strat_name + f"/control_points/{pathNo-1}.csv", "r").read().split("\n")[0].split(",")
                 coord = open(config["STRATEGY"]["FOLDER_LOCATION"] + strat_name + f"/control_points/{pathNo-1}.csv", "r").read().split("\n")[-3].split(",")
                 start_pos = (int((float(prevStartPos[0]) + float(coord[0]))/ scaler), -int((float(prevStartPos[1]) - float(coord[1])) / scaler))
-                print(start_pos)
                 waypoints.append((0, 0))
                 waypoints.append((0, 0))
                 control_points.append((0, 0))
@@ -163,7 +160,6 @@ def generate_path(initial_position, strat_name):
             with open(config["STRATEGY"]["FOLDER_LOCATION"] + strat_name + "/actions.csv", "r") as file:
                 data = file.read()
             dataList = data.split("\n")
-            print("PG", dataList)
             idx = int(dataList[-2].split(",")[1])
             del dataList[-2]
             data = "\n".join(dataList)
@@ -184,7 +180,6 @@ def generate_path(initial_position, strat_name):
         
         total_waypoints = []
         # MAKE SURE AT LEAST 4 POINTS SELECTED
-        print(len(waypoints), start_pos)
         if len(waypoints) >= 4:
             
         

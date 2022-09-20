@@ -66,7 +66,6 @@ def makeStrategy():
         
         actionFile.write(f"{algo},{pathNo},0\n")
         actionFile.close()   
-        print("written")
         pathNo += 1
         window.destroy()
         
@@ -167,7 +166,6 @@ def runStrategy():
             else:
                 inner.append(l)
         actions.append(inner)
-    print(actions)
     
     # field = cv2.imread(config["FIELD_IMAGE"]["FILE_LOCATION"])
     # img = decrease_brightness(field, 100)
@@ -191,7 +189,6 @@ def runStrategy():
                         inner.append(float(line.split(",")[i])/scaler)
                 path.append(list(inner))
             robot.start_pos = path[0]
-            print("turning", robot.angle)
             SIMPLE.run(robot, strat_name, [path[2],path[2]], True) 
             # SIMPLE.rotateToAngle(path[0], math.atan2(path[2][0], path[2][1]))
             
@@ -234,7 +231,6 @@ def runStrategy():
                 path.append(list(inner))
             # SIMPLE.rotateToAngle(path[0], math.atan2(path[2][0], path[2][1]))
             robot.start_pos = path[0]
-            print("turning", robot.angle)
             SIMPLE.run(robot, strat_name, [path[2],path[2]], True) 
 
             Ramsete.run(robot, strat_name, path)     
