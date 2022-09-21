@@ -3,3 +3,4 @@ configparser
 numpy
 imageio
 tqdm
+pyperclip

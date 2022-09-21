@@ -17,6 +17,7 @@ import imageio
 import tkinter as tk
 from tqdm import tqdm
 import numpy as np
+import pyperclip
 
 def decrease_brightness(img, value=30):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -288,8 +289,11 @@ def findCoordinate():
             mouse_down = True
         if event == cv2.EVENT_LBUTTONUP and mouse_down:
             mouse_down = False
+            pyperclip.copy(f"({x * scaler}, {y * scaler})")
             window = tk.Tk()
+            header = tk.Label(text=f"Coordinate copied to clipboard")
             label = tk.Label(text=f"({x * scaler}, {y * scaler})")
+            header.pack()
             label.pack()
             window.mainloop()
             

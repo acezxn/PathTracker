@@ -24,7 +24,7 @@ modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be co
 
 
 
-Code the robot to run multiple paths with different tracking algorithms  and combine into one "strategy." The strategies generated would be stored in the strats directory, and simulated with the strategy maker. 
+Allows the user to code the robot to run multiple paths with different tracking algorithms and combine into one "strategy." The strategies generated would be stored in the ```strats/``` directory, and simulated with the strategy maker. 
 
 #### Structures of a strategy folder
 

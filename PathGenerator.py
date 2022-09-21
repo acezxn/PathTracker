@@ -204,6 +204,7 @@ def generate_path(initial_position, strat_name):
                 ty = 0.5 * (p1[1] * q1 + p2[1] * q2 + p3[1] * q3 + p4[1] * q4);
                 
                 total_waypoints.append((tx, ty))
+            total_waypoints.append(waypoints[-2])
             
             undrawn = img.copy()   
             for i in range(2, len(total_waypoints)):
