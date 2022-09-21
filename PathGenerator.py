@@ -212,6 +212,16 @@ def generate_path(initial_position, strat_name):
                 img = tmp
                 
                 # draw path
+                cv2.circle(undrawn, (int(start_pos[0]+total_waypoints[i][0]),
+                                int(start_pos[1]-total_waypoints[i][1])),
+                        2, (150, 0,
+                            255), -1)
+                cv2.line(undrawn, (int(start_pos[0]+total_waypoints[i][0]),
+                                int(start_pos[1]-total_waypoints[i][1])),
+                        (int(start_pos[0] + total_waypoints[i-1][0]),
+                        int(start_pos[1] - total_waypoints[i-1][1])),
+                        (150, 0,
+                            255), 1)
                 cv2.circle(img, (int(start_pos[0]+total_waypoints[i][0]),
                                 int(start_pos[1]-total_waypoints[i][1])),
                         2, (150, 0,
@@ -222,8 +232,9 @@ def generate_path(initial_position, strat_name):
                         int(start_pos[1] - total_waypoints[i-1][1])),
                         (150, 0,
                             255), 1)
+                
             
-            alpha = 0.5
+            alpha = 0.7
             img = cv2.addWeighted(undrawn, alpha, img, 1 - alpha, 0)
 
                 
