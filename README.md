@@ -79,4 +79,4 @@ The strategy would be stored in strats/[NAME].
 ### Find coordinates
 
 - The box appeared on the cursor indicates the robot's size, and the circle around shows all possible collision area at the point.
-- Click on the field image to show the coordinates on the specific point.
+- Click on the field image to show the coordinates on the specific point. The coordinates would be automatically copied to the clipboard.
