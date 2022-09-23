@@ -1,7 +1,7 @@
 ![PathTracker](https://user-images.githubusercontent.com/14313049/187714439-a0fe8056-106f-4645-9821-fbf6778bcde1.png)
 
 
-# VEX spin up path tracking simulator
+# VRC path tracking simulator
 
 modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be compatible with VEX spin up competition.
 
