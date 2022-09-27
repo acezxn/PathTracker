@@ -26,6 +26,8 @@ modified from [arimb/PurePursuit](https://github.com/arimb/PurePursuit) to be co
 
 Allows the user to code the robot to run multiple paths with different tracking algorithms and combine into one "strategy." The strategies generated would be stored in the ```strats/``` directory, and simulated with the strategy maker. 
 
+All configurations are within the config.ini file.
+
 #### Structures of a strategy folder
 
 - actions.csv: A csv file that programs the order and the way each path is followed.
